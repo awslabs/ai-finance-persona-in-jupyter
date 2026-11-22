@@ -188,37 +188,35 @@ and supply only their I/O, so both behave the same way.
 ### Prerequisites
 
 - Python >= 3.11
-- A working [Jupyter AI](https://github.com/jupyterlab/jupyter-ai) v3 installation with
-  [`jupyter_ai_persona_manager`](https://github.com/jupyter-ai-contrib/jupyter-ai-persona-manager)
-  (install it alongside `jupyter_ai_jupyternaut` if you want FinTyche's free-form chat to fall
-  back to your globally configured Jupyternaut model when no per-chat model is selected).
+- [`uv`](https://docs.astral.sh/uv/) to create the virtual environment and install packages
+  (a plain `pip install -e .` works too if you manage your own environment, but you'll need to
+  install `jupyter-ai` and `jupyter-ai-jupyternaut` yourself first)
 
 ### Install FinTyche
 
 ```bash
 git clone https://github.com/awslabs/ai-finance-persona-in-jupyter.git
 cd ai-finance-persona-in-jupyter
-pip install -e .
+
+uv venv --python 3.13
+source .venv/bin/activate
+
+uv pip install jupyter-ai
+uv pip install jupyter-ai-jupyternaut
+
+uv pip install -e .
 ```
 
 This will:
 
-1. Install the package and register `FinTychePersona` under the `jupyter_ai.personas` entry
-   point group.
-2. Pull in its dependencies: `jupyter_ai_persona_manager`, `litellm`, `QuantLib`,
-   `PyPortfolioOpt`, `nbformat`, `pandas`, `numpy`, and `yfinance`.
-
-If you use [`uv`](https://docs.astral.sh/uv/):
-
-```bash
-uv pip install -e .
-```
-
-Optional extras:
-
-```bash
-pip install -e ".[jupyternaut]"   # fall back to Jupyternaut's configured model
-```
+1. Create and activate a Python 3.13 virtual environment.
+2. Install [Jupyter AI](https://github.com/jupyterlab/jupyter-ai) v3 and
+   [`jupyter_ai_jupyternaut`](https://github.com/jupyterlab/jupyter-ai) so FinTyche's free-form
+   chat can fall back to your globally configured Jupyternaut model when no per-chat model is
+   selected.
+3. Install the FinTyche package and register `FinTychePersona` under the `jupyter_ai.personas`
+   entry point group, pulling in its own dependencies: `jupyter_ai_persona_manager`, `litellm`,
+   `QuantLib`, `PyPortfolioOpt`, `nbformat`, `pandas`, `numpy`, and `yfinance`.
 
 Confirm the persona entry point is registered:
 
@@ -226,7 +224,19 @@ Confirm the persona entry point is registered:
 python -c "from importlib.metadata import entry_points; print([e.name for e in entry_points(group='jupyter_ai.personas')])"
 ```
 
-You should see `fintyche` in the list. Restart JupyterLab (or run `/refresh-personas` in the chat) and **FinTyche** will appear alongside Jupyternaut, QuickAgent, and any other installed personas.
+You should see `fintyche` in the list.
+
+### Start JupyterLab
+
+```bash
+cd ai-finance-persona-in-jupyter
+source .venv/bin/activate
+jupyter lab
+```
+
+**FinTyche** will appear alongside Jupyternaut, QuickAgent, and any other installed personas in
+the persona dropdown. If you add or update personas later, run `/refresh-personas` in the chat
+instead of restarting the server.
 
 ## Configuring the model picker
 
